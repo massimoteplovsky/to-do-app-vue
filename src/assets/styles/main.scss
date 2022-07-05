@@ -1,0 +1,22 @@
+@import './variables.scss';
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 10px;
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+  font-size: 1.6rem;
+  color: $primary-color;
+}
+
+.container {
+  max-width: 128rem;
+  margin: 0 auto;
+}
