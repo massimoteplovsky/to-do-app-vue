@@ -18,7 +18,7 @@ export default {
     return {};
   },
   computed: {
-    ...mapGetters({ tasksList: 'getTasksList' }),
+    ...mapGetters({ tasksList: 'tasks/getTasksList' }),
   },
   components: {
     Task,

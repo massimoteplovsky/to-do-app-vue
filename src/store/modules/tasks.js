@@ -1,45 +1,10 @@
 import axios from 'axios';
-import { BASE_URL } from '@/utils/constants';
+import { BASE_URL, TaskStatus } from '@/utils/constants';
 
 export const tasks = {
+  namespaced: true,
   state: {
-    tasksList: [
-      {
-        id: 1,
-        title: 'delectus aut autem',
-        completed: false,
-      },
-      {
-        id: 2,
-        title: 'quis ut nam facilis et officia qui',
-        completed: false,
-      },
-      {
-        id: 3,
-        title: 'fugiat veniam minus',
-        completed: false,
-      },
-      {
-        id: 4,
-        title: 'et porro tempora',
-        completed: true,
-      },
-      {
-        id: 5,
-        title: 'laboriosam mollitia et enim quasi adipisci quia provident illum',
-        completed: false,
-      },
-      {
-        id: 6,
-        title: 'qui ullam ratione quibusdam voluptatem quia omnis',
-        completed: false,
-      },
-      {
-        id: 7,
-        title: 'illo expedita consequatur quia in',
-        completed: false,
-      },
-    ],
+    tasksList: [],
   },
   getters: {
     getTasksList: ({ tasksList }) => tasksList,
@@ -48,16 +13,32 @@ export const tasks = {
       (id) =>
         tasksList.find((task) => task.id === id),
     getTotalTasksCount: (_, { getTasksList }) => getTasksList.length,
-    getCompletedTasks: ({ tasksList }) => tasksList.filter((task) => task.completed),
+    getTasksByStatus:
+      ({ tasksList }) =>
+      (status = 'completed') =>
+        tasksList.filter((task) => {
+          status === 'completed' ? task.completed : !task.completed;
+        }),
+    getUncompletedTasksCount: (_, { getTasksList, getTasksByStatus }) =>
+      getTasksList.length - getTasksByStatus(TaskStatus.COMPLETED).length,
+    getCompletedTasksCount: (_, { getTasksList, getTasksByStatus }) =>
+      getTasksList.length - getTasksByStatus(TaskStatus.UNCOMPLETED).length,
   },
-  mutations: {},
+  mutations: {
+    setTasks: (state, { tasksList }) => {
+      state.tasksList = tasksList;
+    },
+  },
   actions: {
-    async fetchTasks() {
+    async fetchTasks({ commit, dispatch }) {
+      dispatch('app/fetchDataRequest', null, { root: true });
       try {
-        const { data } = await axios.get(`${BASE_URL}/todos`);
-        console.log(data);
+        const { data: tasksList } = await axios.get(`${BASE_URL}/todos`);
+        commit('setTasks', { tasksList });
+        dispatch('app/fetchDataSuccess', null, { root: true });
       } catch (err) {
         console.log(err);
+        dispatch('app/fetchDataFailure', null, { root: true });
       }
     },
   },
